@@ -90,6 +90,10 @@
           <div class="hint" style="margin:0">Agar ye jeete</div>
         </div>
       </div>
+      <div style="margin-top:8px;padding:10px;border-radius:10px;background:#0f172a;border:1px solid var(--line);text-align:center">
+        <div style="font-size:.7rem;color:var(--muted);text-transform:uppercase">Avg Odd (0 P/L)</div>
+        <div id="avgOddLine" style="font-size:.95rem;font-weight:700;color:#7dd3fc;margin-top:4px">—</div>
+      </div>
       <div class="meta">
         <div class="box">
           <div class="lab">Loss Cut (max loss)</div>
@@ -464,6 +468,34 @@
       e2.className='pl '+(t2>=0?'pos':'neg');
       document.getElementById('lossCut').textContent=fmt(Math.min(t1,t2));
       document.getElementById('bestOut').textContent=fmt(Math.max(t1,t2));
+      // Average odd — prefer SMALL break-even odd (usually Back on loss side)
+      const avgEl=document.getElementById('avgOddLine');
+      if(avgEl){
+        if(Math.abs(t1-t2)<0.01){
+          avgEl.textContent='Balanced';
+        } else {
+          // Two ways to lock 0 P/L:
+          // A) LAY high team: oLay = (tHigh-tLow)/(-tLow)  only if tLow<0
+          // B) BACK low team: oBack = (tHigh-tLow)/tHigh   only if tHigh>0
+          // Show the smaller sensible odd (typically Back ~1.x)
+          let options=[];
+          if(t1>t2){
+            if(t2<0){ options.push({name:state.team1, side:'Lay', o:(t1-t2)/(-t2)}); }
+            if(t1>0){ options.push({name:state.team2, side:'Back', o:(t1-t2)/t1}); }
+          } else {
+            if(t1<0){ options.push({name:state.team2, side:'Lay', o:(t2-t1)/(-t1)}); }
+            if(t2>0){ options.push({name:state.team1, side:'Back', o:(t2-t1)/t2}); }
+          }
+          // prefer odds between 1.01 and 50, pick smallest o
+          options=options.filter(x=>x.o>1.01 && x.o<100);
+          if(!options.length){ avgEl.textContent='—'; }
+          else {
+            options.sort((a,b)=>a.o-b.o);
+            const best=options[0];
+            avgEl.textContent=best.name+'  ·  '+best.side+' @ '+best.o.toFixed(2);
+          }
+        }
+      }
       calcCashout();
 
       const box=document.getElementById('history');
