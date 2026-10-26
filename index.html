@@ -165,8 +165,8 @@ input:focus{border-color:#38bdf8}
     <h2 style="color:#7dd3fc;margin-bottom:10px">Match Setup</h2>
     <div style="margin-bottom:8px"><label>Title</label><input id="series" value="MATCH ODDS" readonly style="opacity:.7;pointer-events:none"/></div>
     <div class="row">
-      <div><label>Team 1</label><input id="inT1" placeholder="Pakistan"/></div>
-      <div><label>Team 2</label><input id="inT2" placeholder="England"/></div>
+      <div><label>Team 1</label><input id="inT1" placeholder="e.g. India" value=""/></div>
+      <div><label>Team 2</label><input id="inT2" placeholder="e.g. New Zealand" value=""/></div>
     </div>
     <button class="btn btn-primary" onclick="saveMatch()">Save</button>
     <button class="btn btn-ghost" style="width:100%;margin-top:6px" onclick="closeMatch()">Cancel</button>
@@ -175,10 +175,13 @@ input:focus{border-color:#38bdf8}
 
 <script>
 const KEY='exchange_book_v4';
-let state={series:'MATCH ODDS',team1:'Team 1',team2:'Team 2',bets:[],editId:null,archive:[]};
+let state={series:'MATCH ODDS',team1:'',team2:'',bets:[],editId:null,archive:[]};
 let side='BACK',team=1,qcMode='LAY';
 
-function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);state={...state,...d};if(!state.archive)state.archive=[];if(!state.bets)state.bets=[];}}catch(e){}render();}
+function load(){try{const r=localStorage.getItem(KEY);if(r){const d=JSON.parse(r);state={...state,...d};if(!state.archive)state.archive=[];if(!state.bets)state.bets=[];}}catch(e){}
+  if(state.team1==='Team 1') state.team1='';
+  if(state.team2==='Team 2') state.team2='';
+  render();}
 function persist(){localStorage.setItem(KEY,JSON.stringify(state));}
 function fmt(n){return(Number(n)||0).toLocaleString('en-IN',{maximumFractionDigits:2});}
 function fmtTime(iso){try{return new Date(iso).toLocaleString('en-IN',{hour:'2-digit',minute:'2-digit',day:'2-digit',month:'2-digit'});}catch(e){return'';}}
@@ -321,10 +324,15 @@ function render(){
 }
 function openMatch(){
   document.getElementById('series').value='MATCH ODDS';
-  document.getElementById('inT1').value=state.team1||'';
-  document.getElementById('inT2').value=state.team2||'';
+  const t1=document.getElementById('inT1');
+  const t2=document.getElementById('inT2');
+  t1.value = state.team1 ? state.team1 : '';
+  t2.value = state.team2 ? state.team2 : '';
+  // never show default Team 1 / Team 2 as value
+  if(t1.value==='Team 1') t1.value='';
+  if(t2.value==='Team 2') t2.value='';
   document.getElementById('matchModal').classList.add('open');
-  setTimeout(()=>{document.getElementById('inT1').focus();},200);
+  setTimeout(()=>{t1.focus();},200);
 }
 function closeMatch(){document.getElementById('matchModal').classList.remove('open');}
 function saveMatch(){
