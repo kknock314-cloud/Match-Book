@@ -83,10 +83,7 @@ input:focus{border-color:#38bdf8}
         <div class="pl" id="t2PL">0</div>
       </div>
     </div>
-    <div class="meta">
-      <div class="box"><div class="lab">Loss Cut</div><div class="val neg" id="lossCut">0</div></div>
-      <div class="box"><div class="lab">Best</div><div class="val pos" id="bestOut">0</div></div>
-    </div>
+
   </div>
 
   <!-- Cashout -->
@@ -294,8 +291,7 @@ function render(){
   const e1=document.getElementById('t1PL'),e2=document.getElementById('t2PL');
   e1.textContent=fmt(t1);e2.textContent=fmt(t2);
   e1.className='pl '+(t1>=0?'pos':'neg');e2.className='pl '+(t2>=0?'pos':'neg');
-  document.getElementById('lossCut').textContent=fmt(Math.min(t1,t2));
-  document.getElementById('bestOut').textContent=fmt(Math.max(t1,t2));
+  
   const avgEl=document.getElementById('avgOddLine');
   if(Math.abs(t1-t2)<0.01)avgEl.textContent='Balanced';
   else{
