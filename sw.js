@@ -1,5 +1,5 @@
-const C = 'ex-book-v8';
-const FILES = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
+const C = 'ex-book-v9';
+const FILES = ['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png','./icon-maskable-192.png','./icon-maskable-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(C).then(c => c.addAll(FILES).catch(() => {})));
   self.skipWaiting();
@@ -12,7 +12,5 @@ self.addEventListener('activate', e => {
 });
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  e.respondWith(
-    fetch(e.request).then(r => r).catch(() => caches.match(e.request))
-  );
+  e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
 });
