@@ -163,7 +163,7 @@ input:focus{border-color:#38bdf8}
 <div class="modal-bg" id="matchModal">
   <div class="modal">
     <h2 style="color:#7dd3fc;margin-bottom:10px">Match Setup</h2>
-    <div style="margin-bottom:8px"><label>Title</label><input id="series" placeholder="MATCH ODDS"/></div>
+    <div style="margin-bottom:8px"><label>Title</label><input id="series" value="MATCH ODDS" readonly style="opacity:.7;pointer-events:none"/></div>
     <div class="row">
       <div><label>Team 1</label><input id="inT1" placeholder="Pakistan"/></div>
       <div><label>Team 2</label><input id="inT2" placeholder="England"/></div>
@@ -260,9 +260,15 @@ function archiveCurrent(){
 }
 function newMatch(){
   if(state.bets.length){if(!confirm('Current match History me save hoga. Continue?'))return;archiveCurrent();}
-  state.bets=[];state.editId=null;state.series='MATCH ODDS';persist();
+  state.bets=[];state.editId=null;
+  state.series='MATCH ODDS';
+  state.team1='';
+  state.team2='';
+  persist();
   ['cLay1','cLay2','odds','stake','qcOdds','qcRisk'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-  document.getElementById('saveBtn').textContent='Add Bet';openMatch();render();
+  document.getElementById('saveBtn').textContent='Add Bet';
+  openMatch();
+  render();
 }
 function openArchiveMatch(id){
   const m=state.archive.find(x=>x.id===id);if(!m)return;
@@ -283,10 +289,10 @@ function renderArchiveOnly(){
 
 function render(){
   document.getElementById('matchTitle').textContent=state.series||'MATCH ODDS';
-  document.getElementById('t1Name').textContent=state.team1;
-  document.getElementById('t2Name').textContent=state.team2;
-  document.getElementById('btnT1').textContent=state.team1;
-  document.getElementById('btnT2').textContent=state.team2;
+  document.getElementById('t1Name').textContent=state.team1||'Team 1';
+  document.getElementById('t2Name').textContent=state.team2||'Team 2';
+  document.getElementById('btnT1').textContent=state.team1||'Team 1';
+  document.getElementById('btnT2').textContent=state.team2||'Team 2';
   const{t1,t2}=totals();
   const e1=document.getElementById('t1PL'),e2=document.getElementById('t2PL');
   e1.textContent=fmt(t1);e2.textContent=fmt(t2);
@@ -313,9 +319,22 @@ function render(){
       <button class="btn btn-danger btn-sm" onclick="delBet('${b.id}')">Delete</button></div></div>`;
   }).join('');
 }
-function openMatch(){document.getElementById('series').value=state.series||'';document.getElementById('inT1').value=state.team1||'';document.getElementById('inT2').value=state.team2||'';document.getElementById('matchModal').classList.add('open');}
+function openMatch(){
+  document.getElementById('series').value='MATCH ODDS';
+  document.getElementById('inT1').value=state.team1||'';
+  document.getElementById('inT2').value=state.team2||'';
+  document.getElementById('matchModal').classList.add('open');
+  setTimeout(()=>{document.getElementById('inT1').focus();},200);
+}
 function closeMatch(){document.getElementById('matchModal').classList.remove('open');}
-function saveMatch(){state.series=document.getElementById('series').value.trim()||'MATCH ODDS';state.team1=document.getElementById('inT1').value.trim()||'Team 1';state.team2=document.getElementById('inT2').value.trim()||'Team 2';persist();closeMatch();render();}
+function saveMatch(){
+  state.series='MATCH ODDS';
+  const t1=document.getElementById('inT1').value.trim();
+  const t2=document.getElementById('inT2').value.trim();
+  if(!t1||!t2){alert('Dono team names daalo');return;}
+  state.team1=t1;state.team2=t2;
+  persist();closeMatch();render();
+}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
 load();
 </script>
